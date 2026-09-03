@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Package, Recycle, Lightbulb, Boxes, DollarSign,
   PlusCircle, ArrowRight, Activity, TrendingUp, TreePine,
-  Percent, Wallet,
+  Percent, Wallet, Layers,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -13,156 +13,144 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { PageHeader, KpiCard, LoadingState, ErrorState, ProgressBar } from '@/components/ui/Shared';
 import {
   formatCurrency, timeAgo, getStatusConfig, WOOD_STATUSES,
+  calculateWoodVolume, PRODUCT_CATALOG, buildScoredSuggestion,
 } from '@/lib/constants';
 import type { WoodPiece, Product, ActivityLog } from '@/lib/types';
 
-interface DashboardStats {
-  totalPieces: number;
-  reusablePieces: number;
-  materialUtilization: number;
-  productOpportunities: number;
-  productsCreated: number;
-  potentialRevenue: number;
-  estimatedProfit: number;
-}
+const STATUS_COLORS: Record<string, string> = {
+  green: '#10b981', amber: '#f59e0b', blue: '#3b82f6', gray: '#94a3b8',
+};
 
 export function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalPieces: 0,
-    reusablePieces: 0,
-    materialUtilization: 0,
-    productOpportunities: 0,
-    productsCreated: 0,
-    potentialRevenue: 0,
-    estimatedProfit: 0,
-  });
-  const [recentActivity, setRecentActivity] = useState<ActivityLog[]>([]);
-  const [recentWood, setRecentWood] = useState<WoodPiece[]>([]);
-  const [statusData, setStatusData] = useState<{ name: string; value: number; color: string }[]>([]);
-  const [woodTypeData, setWoodTypeData] = useState<{ name: string; quantity: number }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [woodPieces, setWoodPieces] = useState<WoodPiece[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [activity, setActivity] = useState<ActivityLog[]>([]);
 
-  useEffect(() => {
-    async function fetchDashboard() {
-      const { data: wood } = await supabase
-        .from('wood_pieces')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      const { data: products } = await supabase
-        .from('products')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      const { data: activity } = await supabase
-        .from('activity_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(8);
-
-      const woodPieces = (wood || []) as WoodPiece[];
-      const productList = (products || []) as Product[];
-
-      const reusable = woodPieces.filter(
-        (w) => w.status === 'available' || w.status === 'reserved'
-      );
-
-      const totalQty = woodPieces.reduce((sum, w) => sum + w.quantity, 0);
-      const reusableQty = reusable.reduce((sum, w) => sum + w.quantity, 0);
-      const utilization = totalQty > 0 ? Math.round((reusableQty / totalQty) * 100) : 0;
-
-      const potentialRevenue = productList.reduce((sum, p) => sum + p.estimated_value, 0);
-      const estimatedProfit = Math.round(potentialRevenue * 0.72);
-
-      const statusCounts = WOOD_STATUSES.map((s) => ({
-        name: s.label,
-        value: woodPieces.filter((w) => w.status === s.value).reduce((sum, w) => sum + w.quantity, 0),
-        color: s.color === 'green' ? '#10b981' : s.color === 'amber' ? '#f59e0b' : s.color === 'blue' ? '#3b82f6' : '#94a3b8',
-      })).filter((s) => s.value > 0);
-
-      const typeMap = new Map<string, number>();
-      woodPieces.forEach((w) => {
-        typeMap.set(w.wood_type, (typeMap.get(w.wood_type) || 0) + w.quantity);
-      });
-      const typeData = Array.from(typeMap.entries())
-        .map(([name, quantity]) => ({ name, quantity }))
-        .sort((a, b) => b.quantity - a.quantity)
-        .slice(0, 6);
-
-      setStats({
-        totalPieces: totalQty,
-        reusablePieces: reusableQty,
-        materialUtilization: utilization,
-        productOpportunities: reusable.length > 0 ? 23 : 0,
-        productsCreated: productList.length,
-        potentialRevenue,
-        estimatedProfit,
-      });
-      setRecentActivity((activity || []) as ActivityLog[]);
-      setRecentWood(woodPieces.slice(0, 5));
-      setStatusData(statusCounts);
-      setWoodTypeData(typeData);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const [{ data: wood, error: wErr }, { data: prods, error: pErr }, { data: act, error: aErr }] = await Promise.all([
+      supabase.from('wood_pieces').select('*').order('created_at', { ascending: false }),
+      supabase.from('products').select('*').order('created_at', { ascending: false }),
+      supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(8),
+    ]);
+    if (wErr || pErr || aErr) {
+      setError('Unable to load dashboard data. Please try again.');
       setLoading(false);
+      return;
     }
-    fetchDashboard();
+    setWoodPieces((wood || []) as WoodPiece[]);
+    setProducts((prods || []) as Product[]);
+    setActivity((act || []) as ActivityLog[]);
+    setLoading(false);
   }, []);
+
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <p className="text-slate-500 text-sm">Loading dashboard...</p>
+      <div className="space-y-6">
+        <PageHeader title="Dashboard" description="Overview of wood reuse operations and business metrics." />
+        <LoadingState message="Loading dashboard data..." />
       </div>
     );
   }
 
-  const kpiCards = [
-    { label: 'Total Leftover Wood', value: `${stats.totalPieces} pcs`, icon: Package, color: 'text-slate-700', bg: 'bg-slate-100' },
-    { label: 'Reusable Material', value: `${stats.reusablePieces} pcs`, icon: Recycle, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Material Utilization', value: `${stats.materialUtilization}%`, icon: Percent, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'Product Opportunities', value: stats.productOpportunities, icon: Lightbulb, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'Products Created', value: stats.productsCreated, icon: Boxes, color: 'text-blue-700', bg: 'bg-blue-50' },
-    { label: 'Potential Revenue', value: formatCurrency(stats.potentialRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Estimated Profit', value: formatCurrency(stats.estimatedProfit), icon: Wallet, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Dashboard" description="Overview of wood reuse operations and business metrics." />
+        <ErrorState message={error} onRetry={fetchData} />
+      </div>
+    );
+  }
+
+  const totalQty = woodPieces.reduce((s, w) => s + w.quantity, 0);
+  const reusable = woodPieces.filter(w => w.status === 'available' || w.status === 'reserved');
+  const reusableQty = reusable.reduce((s, w) => s + w.quantity, 0);
+  const utilization = totalQty > 0 ? Math.round((reusableQty / totalQty) * 100) : 0;
+  const totalVolume = woodPieces.reduce((s, w) => s + calculateWoodVolume(w.length_cm, w.width_cm, w.thickness_cm) * w.quantity, 0);
+
+  let opportunityRevenue = 0;
+  let opportunityProfit = 0;
+  let feasibleCount = 0;
+  woodPieces.filter(w => w.status === 'available' || w.status === 'reserved').forEach(w => {
+    PRODUCT_CATALOG.forEach(p => {
+      const scored = buildScoredSuggestion(w, p);
+      if (scored.matched) {
+        feasibleCount++;
+        opportunityRevenue += p.estimated_value;
+        opportunityProfit += p.estimated_value - scored.estimatedCost;
+      }
+    });
+  });
+
+  const productRevenue = products.reduce((s, p) => s + p.estimated_value, 0);
+  const productProfit = products.reduce((s, p) => s + (p.estimated_profit || p.estimated_value - (p.estimated_cost || 0)), 0);
+  const wasteReduction = totalQty > 0 ? Math.round((reusableQty / totalQty) * 100) : 0;
+
+  const kpis = [
+    { label: 'Total Leftover Wood', value: `${totalQty} pcs`, icon: Package, color: 'text-slate-700', bg: 'bg-slate-100' },
+    { label: 'Reusable Pieces', value: `${reusableQty} pcs`, icon: Recycle, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Reusable Material %', value: `${utilization}%`, icon: Percent, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'Total Material Volume', value: `${totalVolume.toFixed(0)} cm³`, icon: Layers, color: 'text-blue-700', bg: 'bg-blue-50' },
+    { label: 'Est. Revenue Opportunity', value: formatCurrency(opportunityRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Est. Profit Opportunity', value: formatCurrency(opportunityProfit), icon: Wallet, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Waste Reduction Potential', value: `${wasteReduction}%`, icon: TreePine, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'Products Created', value: products.length, icon: Boxes, color: 'text-blue-700', bg: 'bg-blue-50' },
   ];
+
+  const statusData = WOOD_STATUSES.map(s => ({
+    name: s.label,
+    value: woodPieces.filter(w => w.status === s.value).reduce((sum, w) => sum + w.quantity, 0),
+    color: STATUS_COLORS[s.color] || '#94a3b8',
+  })).filter(s => s.value > 0);
+
+  const typeMap = new Map<string, number>();
+  woodPieces.forEach(w => typeMap.set(w.wood_type, (typeMap.get(w.wood_type) || 0) + w.quantity));
+  const woodTypeData = Array.from(typeMap.entries()).map(([name, quantity]) => ({ name, quantity })).sort((a, b) => b.quantity - a.quantity).slice(0, 6);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Overview of wood reuse operations and business metrics.</p>
-        </div>
-        <Link to="/add-wood">
-          <Button size="sm">
-            <PlusCircle className="w-4 h-4" />
-            Add Material
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Overview of wood reuse operations and business metrics."
+        action={
+          <Link to="/add-wood"><Button size="sm"><PlusCircle className="w-4 h-4" />Add Material</Button></Link>
+        }
+      />
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-        {kpiCards.map((card) => (
-          <Card key={card.label} className="p-4">
-            <div className={`w-8 h-8 rounded-md ${card.bg} flex items-center justify-center mb-2.5`}>
-              <card.icon className={`w-4 h-4 ${card.color}`} />
-            </div>
-            <p className="text-lg font-bold text-slate-900 leading-tight">{card.value}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{card.label}</p>
-          </Card>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {kpis.map(k => <KpiCard key={k.label} {...k} />)}
       </div>
+
+      {/* Material utilization progress */}
+      <Card className="p-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Percent className="w-4 h-4 text-amber-700" />
+            <h3 className="text-sm font-semibold text-slate-900">Material Utilization Rate</h3>
+          </div>
+          <span className="text-2xl font-bold text-amber-700 tabular-nums">{utilization}%</span>
+        </div>
+        <ProgressBar value={utilization} color="bg-amber-500" />
+        <p className="text-xs text-slate-500 mt-2">
+          {utilization > 0
+            ? `${utilization}% of recorded leftover material has potential for productive reuse.`
+            : 'No material recorded yet. Add leftover wood to begin tracking utilization.'}
+        </p>
+      </Card>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Wood type distribution */}
         <Card>
-          <CardHeader>
-            <CardTitle>Wood Type Distribution</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Wood Type Distribution</CardTitle></CardHeader>
           <CardContent>
             {woodTypeData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
@@ -170,64 +158,33 @@ export function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} />
                   <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} />
-                  <Tooltip
-                    contentStyle={{
-                      fontSize: '12px',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-                    }}
-                  />
+                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
                   <Bar dataKey="quantity" fill="#b45309" radius={[4, 4, 0, 0]} name="Quantity" />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">
-                No wood data available
-              </div>
+              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No wood data available</div>
             )}
           </CardContent>
         </Card>
 
-        {/* Status distribution */}
         <Card>
-          <CardHeader>
-            <CardTitle>Material Status Distribution</CardTitle>
-          </CardHeader>
+          <CardHeader><CardTitle>Material Status Distribution</CardTitle></CardHeader>
           <CardContent>
             {statusData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
                 <PieChart>
-                  <Pie
-                    data={statusData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    innerRadius={40}
+                  <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={40}
                     label={(props: { name?: string; value?: number }) => `${props.name}: ${props.value}`}
-                    labelLine={false}
-                    style={{ fontSize: '11px' }}
-                  >
-                    {statusData.map((entry, idx) => (
-                      <Cell key={idx} fill={entry.color} />
-                    ))}
+                    labelLine={false} style={{ fontSize: '11px' }}>
+                    {statusData.map((entry, idx) => <Cell key={idx} fill={entry.color} />)}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      fontSize: '12px',
-                      borderRadius: '6px',
-                      border: '1px solid #e2e8f0',
-                    }}
-                  />
+                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }} />
                   <Legend wrapperStyle={{ fontSize: '11px' }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">
-                No status data available
-              </div>
+              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No status data available</div>
             )}
           </CardContent>
         </Card>
@@ -235,7 +192,6 @@ export function DashboardPage() {
 
       {/* Recent wood + Recent activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent wood */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -246,32 +202,24 @@ export function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent>
-            {recentWood.length > 0 ? (
+            {woodPieces.length > 0 ? (
               <div className="space-y-2">
-                {recentWood.map((wood) => {
-                  const statusConfig = getStatusConfig(wood.status);
+                {woodPieces.slice(0, 5).map(wood => {
+                  const sc = getStatusConfig(wood.status);
                   return (
-                    <Link
-                      key={wood.id}
-                      to={`/suggestions?wood=${wood.id}`}
-                      className="flex items-center justify-between p-3 rounded-md border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all"
-                    >
+                    <Link key={wood.id} to={`/suggestions?wood=${wood.id}`}
+                      className="flex items-center justify-between p-3 rounded-md border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center flex-shrink-0">
                           <TreePine className="w-4 h-4 text-slate-600" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">
-                            {wood.wood_type} — {wood.quantity} pcs
-                          </p>
-                          <p className="text-xs text-slate-500">
-                            {wood.length_cm} × {wood.width_cm} × {wood.thickness_cm} cm · {timeAgo(wood.created_at)}
-                          </p>
+                          <p className="text-sm font-medium text-slate-900 truncate">{wood.wood_type} — {wood.quantity} pcs</p>
+                          <p className="text-xs text-slate-500">{wood.length_cm} × {wood.width_cm} × {wood.thickness_cm} cm · {timeAgo(wood.created_at)}</p>
                         </div>
                       </div>
-                      <Badge color={statusConfig.color as 'green' | 'amber' | 'blue' | 'gray'}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dotColor}`} />
-                        {statusConfig.label}
+                      <Badge color={sc.color as 'green' | 'amber' | 'blue' | 'gray'}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${sc.dotColor}`} />{sc.label}
                       </Badge>
                     </Link>
                   );
@@ -281,29 +229,20 @@ export function DashboardPage() {
               <div className="py-12 text-center">
                 <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <p className="text-sm text-slate-500 mb-3">No wood pieces recorded yet.</p>
-                <Link to="/add-wood">
-                  <Button variant="outline" size="sm">
-                    <PlusCircle className="w-4 h-4" />
-                    Add Your First Piece
-                  </Button>
-                </Link>
+                <Link to="/add-wood"><Button variant="outline" size="sm"><PlusCircle className="w-4 h-4" />Add Your First Piece</Button></Link>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Recent activity */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-amber-700" />
-              Recent Activity
-            </CardTitle>
+            <CardTitle className="flex items-center gap-2"><Activity className="w-4 h-4 text-amber-700" />Recent Activity</CardTitle>
           </CardHeader>
           <CardContent>
-            {recentActivity.length > 0 ? (
+            {activity.length > 0 ? (
               <div className="space-y-3">
-                {recentActivity.map((log) => (
+                {activity.map(log => (
                   <div key={log.id} className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-600 mt-1.5 flex-shrink-0" />
                     <div className="min-w-0">
@@ -329,9 +268,9 @@ export function DashboardPage() {
           <div>
             <h3 className="text-sm font-semibold text-slate-900">Material Reuse Overview</h3>
             <p className="text-sm text-slate-600 mt-1">
-              You have <span className="font-semibold text-slate-900">{stats.reusablePieces} reusable pieces</span> with a {stats.materialUtilization}% utilization rate.
-              {stats.potentialRevenue > 0
-                ? ` Potential revenue from reused wood: ${formatCurrency(stats.potentialRevenue)}.`
+              You have <span className="font-semibold text-slate-900">{reusableQty} reusable pieces</span> with a {utilization}% utilization rate.
+              {productRevenue > 0
+                ? ` Products created from reused wood: ${formatCurrency(productRevenue)} in estimated revenue and ${formatCurrency(productProfit)} in estimated profit.`
                 : ' Start creating products from your leftover wood to track revenue.'}
             </p>
             <Link to="/suggestions" className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 hover:text-amber-800">

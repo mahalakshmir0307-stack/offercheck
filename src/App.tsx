@@ -10,6 +10,7 @@ import { SuggestionsPage } from '@/pages/SuggestionsPage';
 import { ProductsPage } from '@/pages/ProductsPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { ReportsPage } from '@/pages/ReportsPage';
+import { ArchitecturePage } from '@/pages/ArchitecturePage';
 
 function App() {
   return (
@@ -84,6 +85,17 @@ function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <ReportsPage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/architecture"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <ArchitecturePage />
                 </AppLayout>
               </ProtectedRoute>
             }

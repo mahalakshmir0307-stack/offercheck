@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import {
   TreePine, Menu, X, LogOut, LayoutDashboard, PlusCircle,
-  PackageOpen, Lightbulb, Boxes, BarChart3, FileText,
+  PackageOpen, Lightbulb, Boxes, BarChart3, FileText, Network,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,7 @@ const navItems: NavItem[] = [
   { to: '/products', label: 'Created Products', icon: Boxes },
   { to: '/analytics', label: 'Revenue Analytics', icon: BarChart3 },
   { to: '/reports', label: 'Reports', icon: FileText },
+  { to: '/architecture', label: 'Architecture', icon: Network },
 ];
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
