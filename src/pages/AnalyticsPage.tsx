@@ -3,7 +3,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, AreaChart, Area, PieChart, Pie, Cell, Legend,
 } from 'recharts';
-import { DollarSign, TrendingUp, Wallet, Package, Percent, Layers } from 'lucide-react';
+import { DollarSign, TrendingUp, Wallet, Package, Percent, Layers, Lightbulb, Award, TreePine } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { PageHeader, KpiCard, LoadingState, ErrorState } from '@/components/ui/Shared';
@@ -104,6 +104,80 @@ export function AnalyticsPage() {
     cumulative += p.estimated_value;
     return { date: formatDate(p.created_at), revenue: cumulative, daily: p.estimated_value };
   });
+
+  // Business insights
+  const insights: { icon: typeof Lightbulb; title: string; text: string; color: string; bg: string }[] = [];
+
+  // Most profitable wood type
+  const profitByWoodType = new Map<string, number>();
+  woodPieces.filter(w => w.status === 'available' || w.status === 'reserved').forEach(w => {
+    PRODUCT_CATALOG.forEach(p => {
+      const scored = buildScoredSuggestion(w, p);
+      if (scored.matched) {
+        const profit = p.estimated_value - scored.estimatedCost;
+        profitByWoodType.set(w.wood_type, (profitByWoodType.get(w.wood_type) || 0) + profit);
+      }
+    });
+  });
+  const bestWoodType = Array.from(profitByWoodType.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (bestWoodType) {
+    insights.push({
+      icon: TreePine,
+      title: 'Best Wood Type by Profit',
+      text: `${bestWoodType[0]} leftovers currently generate the highest estimated profit opportunity at ${formatCurrency(bestWoodType[1])}.`,
+      color: 'text-amber-700', bg: 'bg-amber-50',
+    });
+  }
+
+  // Most recommended product
+  const productFeasibleCount = new Map<string, number>();
+  woodPieces.forEach(w => {
+    PRODUCT_CATALOG.forEach(p => {
+      const scored = buildScoredSuggestion(w, p);
+      if (scored.matched) productFeasibleCount.set(p.name, (productFeasibleCount.get(p.name) || 0) + 1);
+    });
+  });
+  const mostRecommended = Array.from(productFeasibleCount.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (mostRecommended) {
+    insights.push({
+      icon: Award,
+      title: 'Most Feasible Product',
+      text: `${mostRecommended[0]} is feasible for ${mostRecommended[1]} of your recorded wood pieces — the most broadly applicable product.`,
+      color: 'text-blue-700', bg: 'bg-blue-50',
+    });
+  }
+
+  // Most profitable product
+  const productProfitMap = new Map<string, number>();
+  woodPieces.filter(w => w.status === 'available' || w.status === 'reserved').forEach(w => {
+    PRODUCT_CATALOG.forEach(p => {
+      const scored = buildScoredSuggestion(w, p);
+      if (scored.matched) {
+        const profit = p.estimated_value - scored.estimatedCost;
+        const existing = productProfitMap.get(p.name);
+        if (!existing || profit > existing) productProfitMap.set(p.name, profit);
+      }
+    });
+  });
+  const mostProfitableProduct = Array.from(productProfitMap.entries()).sort((a, b) => b[1] - a[1])[0];
+  if (mostProfitableProduct) {
+    insights.push({
+      icon: TrendingUp,
+      title: 'Most Profitable Product',
+      text: `${mostProfitableProduct[0]} offers the highest single-product estimated profit at ${formatCurrency(mostProfitableProduct[1])}.`,
+      color: 'text-emerald-700', bg: 'bg-emerald-50',
+    });
+  }
+
+  // Waste reduction insight
+  if (woodPieces.length > 0) {
+    insights.push({
+      icon: Lightbulb,
+      title: 'Waste Reduction Potential',
+      text: `${utilizationRate}% of your recorded material has reuse potential. Converting available wood into products could reduce waste significantly.`,
+      color: 'text-amber-700', bg: 'bg-amber-50',
+    });
+  }
 
   const kpis = [
     { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
@@ -234,6 +308,33 @@ export function AnalyticsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Business Insights */}
+      {insights.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lightbulb className="w-4 h-4 text-amber-700" />
+              Business Decision Insights
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {insights.map((insight, idx) => (
+                <div key={idx} className="flex items-start gap-3 p-4 rounded-md border border-slate-200 bg-slate-50">
+                  <div className={`w-9 h-9 rounded-md ${insight.bg} flex items-center justify-center flex-shrink-0">
+                    <insight.icon className={`w-4 h-4 ${insight.color}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{insight.title}</p>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">{insight.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -115,6 +115,29 @@ export function DashboardPage() {
   woodPieces.forEach(w => typeMap.set(w.wood_type, (typeMap.get(w.wood_type) || 0) + w.quantity));
   const woodTypeData = Array.from(typeMap.entries()).map(([name, quantity]) => ({ name, quantity })).sort((a, b) => b.quantity - a.quantity).slice(0, 6);
 
+  // Top product opportunities by revenue and profit
+  const productOpportunities = new Map<string, { revenue: number; profit: number }>();
+  woodPieces.filter(w => w.status === 'available' || w.status === 'reserved').forEach(w => {
+    PRODUCT_CATALOG.forEach(p => {
+      const scored = buildScoredSuggestion(w, p);
+      if (scored.matched) {
+        const existing = productOpportunities.get(p.name);
+        const profit = p.estimated_value - scored.estimatedCost;
+        if (!existing || profit > existing.profit) {
+          productOpportunities.set(p.name, { revenue: p.estimated_value, profit });
+        }
+      }
+    });
+  });
+  const topProductsByRevenue = Array.from(productOpportunities.entries())
+    .map(([name, v]) => ({ name, value: v.revenue }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6);
+  const topProductsByProfit = Array.from(productOpportunities.entries())
+    .map(([name, v]) => ({ name, value: v.profit }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -185,6 +208,47 @@ export function DashboardPage() {
               </ResponsiveContainer>
             ) : (
               <div className="h-60 flex items-center justify-center text-sm text-slate-400">No status data available</div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Product opportunity charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader><CardTitle>Potential Revenue by Product</CardTitle></CardHeader>
+          <CardContent>
+            {topProductsByRevenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={topProductsByRevenue} layout="vertical" margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} tickFormatter={v => `${v}`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} width={100} />
+                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }} formatter={v => formatCurrency(Number(v))} />
+                  <Bar dataKey="value" fill="#10b981" radius={[0, 4, 4, 0]} name="Est. Revenue" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No product opportunities yet</div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Estimated Profit by Product</CardTitle></CardHeader>
+          <CardContent>
+            {topProductsByProfit.length > 0 ? (
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={topProductsByProfit} layout="vertical" margin={{ top: 10, right: 10, left: 20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} tickFormatter={v => `${v}`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={{ stroke: '#e2e8f0' }} width={100} />
+                  <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '6px', border: '1px solid #e2e8f0' }} formatter={v => formatCurrency(Number(v))} />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} name="Est. Profit" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No profit data yet</div>
             )}
           </CardContent>
         </Card>

@@ -1,4 +1,4 @@
-import type { WoodStatus, ProductSuggestion, ProductCategory, ProductStatus } from './types';
+import type { WoodStatus, ProductSuggestion, ProductCategory, ProductStatus, ScoredSuggestion } from './types';
 
 export const WOOD_TYPES = [
   'Oak',
@@ -621,10 +621,19 @@ export function calculateEstimatedProfit(estimatedValue: number): number {
   return estimatedValue - calculateEstimatedCost(estimatedValue);
 }
 
+export const RANKING_WEIGHTS = {
+  feasibility: 0.40,
+  utilization: 0.25,
+  profitMargin: 0.25,
+  revenue: 0.10,
+} as const;
+
+const MAX_CATALOG_VALUE = 1200;
+
 export function buildScoredSuggestion(
   wood: { length_cm: number; width_cm: number; thickness_cm: number },
   product: ProductSuggestion
-) {
+): ScoredSuggestion {
   const matched =
     wood.length_cm >= product.min_length &&
     wood.width_cm >= product.min_width &&
@@ -639,6 +648,16 @@ export function buildScoredSuggestion(
   const materialRequired = `${product.min_length} × ${product.min_width} × ${product.min_thickness} cm`;
   const remainingMaterial = remainingVolume > 0 ? `${remainingVolume.toFixed(0)} cm³ remaining` : 'No significant remainder';
 
+  const revenueScore = Math.round((product.estimated_value / MAX_CATALOG_VALUE) * 100);
+  const finalScore = matched
+    ? Math.round(
+        score * RANKING_WEIGHTS.feasibility +
+        materialUtilization * RANKING_WEIGHTS.utilization +
+        profitMargin * RANKING_WEIGHTS.profitMargin +
+        revenueScore * RANKING_WEIGHTS.revenue
+      )
+    : 0;
+
   let explanation: string;
   if (!matched) {
     const deficits: string[] = [];
@@ -647,13 +666,18 @@ export function buildScoredSuggestion(
     if (wood.thickness_cm < product.min_thickness) deficits.push(`thickness (${wood.thickness_cm} < ${product.min_thickness} cm)`);
     explanation = `Not feasible: insufficient ${deficits.join(', ')}.`;
   } else {
-    explanation = `Recommended because the available wood dimensions meet the minimum requirements with ${materialUtilization}% material utilization and ${profitMargin}% profit margin.`;
+    const parts: string[] = [];
+    parts.push(`${score}% feasibility`);
+    parts.push(`${materialUtilization}% material utilization`);
+    parts.push(`${profitMargin}% profit margin`);
+    explanation = `Selected for strong ${parts.join(', ')} and estimated profit of ${formatCurrency(product.estimated_value - estimatedCost)}.`;
   }
 
   return {
     ...product,
     matched,
     score,
+    finalScore,
     woodVolume,
     materialUtilization,
     estimatedCost,

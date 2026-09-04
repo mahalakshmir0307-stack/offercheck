@@ -53,7 +53,7 @@ export function ReportsPage() {
   const reusableWood = woodPieces.filter(w => w.status === 'available' || w.status === 'reserved');
   const reusableQty = reusableWood.reduce((sum, w) => sum + w.quantity, 0);
   const totalRevenue = products.reduce((sum, p) => sum + p.estimated_value, 0);
-  const estimatedProfit = Math.round(totalRevenue * 0.72);
+  const totalProfit = products.reduce((sum, p) => sum + (p.estimated_profit || p.estimated_value - (p.estimated_cost || 0)), 0);
   const utilizationRate = totalWood > 0 ? Math.round((reusableQty / totalWood) * 100) : 0;
 
   const summaryStats = [
@@ -61,7 +61,7 @@ export function ReportsPage() {
     { label: 'Reusable Material', value: reusableQty, icon: Recycle, color: 'text-emerald-700', bg: 'bg-emerald-50' },
     { label: 'Products Created', value: products.length, icon: Boxes, color: 'text-blue-700', bg: 'bg-blue-50' },
     { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Estimated Profit', value: formatCurrency(estimatedProfit), icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Estimated Profit', value: formatCurrency(totalProfit), icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50' },
     { label: 'Utilization Rate', value: `${utilizationRate}%`, icon: TreePine, color: 'text-amber-700', bg: 'bg-amber-50' },
   ];
 
@@ -74,7 +74,7 @@ export function ReportsPage() {
   const handleExport = () => {
     const reportData = {
       generatedAt: new Date().toISOString(),
-      summary: { totalWood, reusableQty, productsCreated: products.length, totalRevenue, estimatedProfit, utilizationRate },
+      summary: { totalWood, reusableQty, productsCreated: products.length, totalRevenue, totalProfit, utilizationRate },
       woodPieces: woodPieces.map(w => ({
         type: w.wood_type,
         dimensions: `${w.length_cm}x${w.width_cm}x${w.thickness_cm} cm`,

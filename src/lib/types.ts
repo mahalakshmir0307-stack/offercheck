@@ -72,6 +72,7 @@ export interface ProductSuggestion {
 export interface ScoredSuggestion extends ProductSuggestion {
   matched: boolean;
   score: number;
+  finalScore: number;
   woodVolume: number;
   materialUtilization: number;
   estimatedCost: number;

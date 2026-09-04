@@ -67,9 +67,7 @@ export function SuggestionsPage() {
   const suggestions: ScoredSuggestion[] = selectedWood
     ? PRODUCT_CATALOG.map((p) => buildScoredSuggestion(selectedWood, p)).sort((a, b) => {
         if (a.matched !== b.matched) return a.matched ? -1 : 1;
-        if (b.score !== a.score) return b.score - a.score;
-        if (b.materialUtilization !== a.materialUtilization) return b.materialUtilization - a.materialUtilization;
-        return b.estimated_profit - a.estimated_profit;
+        return b.finalScore - a.finalScore;
       })
     : [];
 
@@ -212,12 +210,12 @@ export function SuggestionsPage() {
             <Card className="border-amber-300 shadow-md">
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-64 flex-shrink-0">
-                  <ProductImage images={bestMatch.images} alt={bestMatch.name} className="h-48 md:h-full" />
+                  <ProductImage images={bestMatch.images} alt={`${selectedWood.wood_type} ${bestMatch.name}`} className="h-48 md:h-full" />
                 </div>
                 <div className="flex-1 p-5">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Badge color="amber"><Award className="w-3 h-3" />Best Match</Badge>
+                      <Badge color="amber"><Award className="w-3 h-3" />#1 Best Opportunity</Badge>
                       <Badge color="green"><CheckCircle2 className="w-3 h-3" />{bestMatch.score}% Feasible</Badge>
                     </div>
                     <span className="text-xs text-slate-400">{CATEGORY_LABELS[bestMatch.category]}</span>
@@ -267,15 +265,23 @@ export function SuggestionsPage() {
               <span className="text-xs text-slate-400">({suggestions.length} products analyzed)</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {suggestions.map((s) => {
+              {suggestions.map((s, idx) => {
                 const Icon = ICON_MAP[s.icon] || Boxes;
+                const rank = s.matched ? matchedSuggestions.indexOf(s) + 1 : null;
                 return (
                   <Card key={s.name} className={s.matched ? 'border-slate-200' : 'opacity-60'}>
-                    <ProductImage images={s.images} alt={s.name} className="h-36" />
+                    <ProductImage images={s.images} alt={`${selectedWood?.wood_type || ''} ${s.name}`} className="h-36" />
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between mb-2">
-                        <div className={`w-8 h-8 rounded-md flex items-center justify-center ${s.matched ? 'bg-amber-50' : 'bg-slate-100'}`}>
-                          <Icon className={`w-4 h-4 ${s.matched ? 'text-amber-700' : 'text-slate-400'}`} />
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-md flex items-center justify-center ${s.matched ? 'bg-amber-50' : 'bg-slate-100'}`}>
+                            <Icon className={`w-4 h-4 ${s.matched ? 'text-amber-700' : 'text-slate-400'}`} />
+                          </div>
+                          {rank && rank <= 3 && (
+                            <span className={`text-xs font-bold tabular-nums ${rank === 1 ? 'text-amber-700' : rank === 2 ? 'text-slate-500' : 'text-slate-400'}`}>
+                              #{rank}
+                            </span>
+                          )}
                         </div>
                         {s.matched ? (
                           <Badge color="green"><CheckCircle2 className="w-3 h-3" />{s.score}% Feasible</Badge>
