@@ -11,6 +11,7 @@ import { ProductsPage } from '@/pages/ProductsPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { ReportsPage } from '@/pages/ReportsPage';
 import { ArchitecturePage } from '@/pages/ArchitecturePage';
+import { SettingsPage } from '@/pages/SettingsPage';
 
 function App() {
   return (
@@ -96,6 +97,17 @@ function App() {
               <ProtectedRoute>
                 <AppLayout>
                   <ArchitecturePage />
+                </AppLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <AppLayout>
+                  <SettingsPage />
                 </AppLayout>
               </ProtectedRoute>
             }

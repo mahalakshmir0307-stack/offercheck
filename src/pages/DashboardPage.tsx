@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { PageHeader, KpiCard, LoadingState, ErrorState, ProgressBar } from '@/components/ui/Shared';
+import { PageHeader, KpiCard, LoadingState, ErrorState, ProgressBar, SkeletonCard } from '@/components/ui/Shared';
 import {
   formatCurrency, timeAgo, getStatusConfig, WOOD_STATUSES,
   calculateWoodVolume, PRODUCT_CATALOG, buildScoredSuggestion,
@@ -56,7 +56,9 @@ export function DashboardPage() {
     return (
       <div className="space-y-6">
         <PageHeader title="Dashboard" description="Overview of wood reuse operations and business metrics." />
-        <LoadingState message="Loading dashboard data..." />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+        </div>
       </div>
     );
   }
@@ -95,14 +97,14 @@ export function DashboardPage() {
   const wasteReduction = totalQty > 0 ? Math.round((reusableQty / totalQty) * 100) : 0;
 
   const kpis = [
-    { label: 'Total Leftover Wood', value: `${totalQty} pcs`, icon: Package, color: 'text-slate-700', bg: 'bg-slate-100' },
-    { label: 'Reusable Pieces', value: `${reusableQty} pcs`, icon: Recycle, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Reusable Material %', value: `${utilization}%`, icon: Percent, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'Total Material Volume', value: `${totalVolume.toFixed(0)} cm³`, icon: Layers, color: 'text-blue-700', bg: 'bg-blue-50' },
-    { label: 'Est. Revenue Opportunity', value: formatCurrency(opportunityRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Est. Profit Opportunity', value: formatCurrency(opportunityProfit), icon: Wallet, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Waste Reduction Potential', value: `${wasteReduction}%`, icon: TreePine, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'Products Created', value: products.length, icon: Boxes, color: 'text-blue-700', bg: 'bg-blue-50' },
+    { label: 'Total Leftover Wood', value: `${totalQty}`, unit: 'pcs', description: 'All recorded wood pieces', icon: Package, color: 'text-charcoal-700', bg: 'bg-charcoal-100' },
+    { label: 'Reusable Material', value: `${reusableQty}`, unit: 'pcs', description: 'Available or reserved pieces', icon: Recycle, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Material Utilization', value: `${utilization}`, unit: '%', description: 'Reusable vs total material', icon: Percent, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'Total Volume', value: totalVolume >= 1000 ? `${(totalVolume / 1000).toFixed(1)}` : `${totalVolume.toFixed(0)}`, unit: totalVolume >= 1000 ? 'k cm³' : 'cm³', description: 'Combined wood volume', icon: Layers, color: 'text-blue-700', bg: 'bg-blue-50' },
+    { label: 'Potential Revenue', value: formatCurrency(opportunityRevenue), description: 'From feasible product opportunities', icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Potential Profit', value: formatCurrency(opportunityProfit), description: 'Estimated from current inventory', icon: Wallet, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Waste Reduction', value: `${wasteReduction}`, unit: '%', description: 'Material saved from waste', icon: TreePine, color: 'text-amber-700', bg: 'bg-amber-50' },
+    { label: 'Products Created', value: `${products.length}`, description: 'Products tracked in system', icon: Boxes, color: 'text-blue-700', bg: 'bg-blue-50' },
   ];
 
   const statusData = WOOD_STATUSES.map(s => ({
@@ -148,6 +150,27 @@ export function DashboardPage() {
         }
       />
 
+      {/* Welcome / business overview */}
+      <Card className="p-5 bg-gradient-to-br from-charcoal-900 to-charcoal-800 border-charcoal-800">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-bold text-white">Wood Reuse Operations</h2>
+            <p className="text-sm text-charcoal-400 mt-1">
+              {woodPieces.length > 0
+                ? `You have ${totalQty} wood pieces recorded with ${feasibleCount} feasible product opportunities.`
+                : 'Start by adding leftover wood to generate product recommendations and business insights.'}
+            </p>
+          </div>
+          {woodPieces.length > 0 && (
+            <Link to="/suggestions">
+              <Button variant="secondary" size="sm" className="bg-amber-700 hover:bg-amber-800">
+                View Recommendations <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </Link>
+          )}
+        </div>
+      </Card>
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map(k => <KpiCard key={k.label} {...k} />)}
@@ -158,12 +181,12 @@ export function DashboardPage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Percent className="w-4 h-4 text-amber-700" />
-            <h3 className="text-sm font-semibold text-slate-900">Material Utilization Rate</h3>
+            <h3 className="text-sm font-semibold text-charcoal-900">Material Utilization Rate</h3>
           </div>
           <span className="text-2xl font-bold text-amber-700 tabular-nums">{utilization}%</span>
         </div>
         <ProgressBar value={utilization} color="bg-amber-500" />
-        <p className="text-xs text-slate-500 mt-2">
+        <p className="text-xs text-charcoal-500 mt-2">
           {utilization > 0
             ? `${utilization}% of recorded leftover material has potential for productive reuse.`
             : 'No material recorded yet. Add leftover wood to begin tracking utilization.'}
@@ -186,7 +209,7 @@ export function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No wood data available</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No wood data available</div>
             )}
           </CardContent>
         </Card>
@@ -207,7 +230,7 @@ export function DashboardPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No status data available</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No status data available</div>
             )}
           </CardContent>
         </Card>
@@ -229,7 +252,7 @@ export function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No product opportunities yet</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No product opportunities yet</div>
             )}
           </CardContent>
         </Card>
@@ -248,7 +271,7 @@ export function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No profit data yet</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No profit data yet</div>
             )}
           </CardContent>
         </Card>
@@ -272,14 +295,14 @@ export function DashboardPage() {
                   const sc = getStatusConfig(wood.status);
                   return (
                     <Link key={wood.id} to={`/suggestions?wood=${wood.id}`}
-                      className="flex items-center justify-between p-3 rounded-md border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all">
+                      className="flex items-center justify-between p-3 rounded-md border border-charcoal-200 hover:border-charcoal-300 hover:shadow-sm transition-all">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center flex-shrink-0">
-                          <TreePine className="w-4 h-4 text-slate-600" />
+                        <div className="w-8 h-8 rounded-md bg-charcoal-100 flex items-center justify-center flex-shrink-0">
+                          <TreePine className="w-4 h-4 text-charcoal-600" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm font-medium text-slate-900 truncate">{wood.wood_type} — {wood.quantity} pcs</p>
-                          <p className="text-xs text-slate-500">{wood.length_cm} × {wood.width_cm} × {wood.thickness_cm} cm · {timeAgo(wood.created_at)}</p>
+                          <p className="text-sm font-medium text-charcoal-900 truncate">{wood.wood_type} — {wood.quantity} pcs</p>
+                          <p className="text-xs text-charcoal-500">{wood.length_cm} × {wood.width_cm} × {wood.thickness_cm} cm · {timeAgo(wood.created_at)}</p>
                         </div>
                       </div>
                       <Badge color={sc.color as 'green' | 'amber' | 'blue' | 'gray'}>
@@ -291,8 +314,8 @@ export function DashboardPage() {
               </div>
             ) : (
               <div className="py-12 text-center">
-                <Package className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-sm text-slate-500 mb-3">No wood pieces recorded yet.</p>
+                <Package className="w-10 h-10 text-charcoal-300 mx-auto mb-3" />
+                <p className="text-sm text-charcoal-500 mb-3">No wood pieces recorded yet.</p>
                 <Link to="/add-wood"><Button variant="outline" size="sm"><PlusCircle className="w-4 h-4" />Add Your First Piece</Button></Link>
               </div>
             )}
@@ -310,29 +333,29 @@ export function DashboardPage() {
                   <div key={log.id} className="flex items-start gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-amber-600 mt-1.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-xs text-slate-700">{log.description}</p>
-                      <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(log.created_at)}</p>
+                      <p className="text-xs text-charcoal-700">{log.description}</p>
+                      <p className="text-[11px] text-charcoal-400 mt-0.5">{timeAgo(log.created_at)}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-8">No recent activity.</p>
+              <p className="text-sm text-charcoal-500 text-center py-8">No recent activity.</p>
             )}
           </CardContent>
         </Card>
       </div>
 
       {/* Overview banner */}
-      <Card className="p-5 bg-slate-50 border-slate-200">
+      <Card className="p-5 bg-charcoal-50 border-charcoal-200">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-md bg-amber-700 flex items-center justify-center flex-shrink-0">
             <TrendingUp className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">Material Reuse Overview</h3>
-            <p className="text-sm text-slate-600 mt-1">
-              You have <span className="font-semibold text-slate-900">{reusableQty} reusable pieces</span> with a {utilization}% utilization rate.
+            <h3 className="text-sm font-semibold text-charcoal-900">Material Reuse Overview</h3>
+            <p className="text-sm text-charcoal-600 mt-1">
+              You have <span className="font-semibold text-charcoal-900">{reusableQty} reusable pieces</span> with a {utilization}% utilization rate.
               {productRevenue > 0
                 ? ` Products created from reused wood: ${formatCurrency(productRevenue)} in estimated revenue and ${formatCurrency(productProfit)} in estimated profit.`
                 : ' Start creating products from your leftover wood to track revenue.'}

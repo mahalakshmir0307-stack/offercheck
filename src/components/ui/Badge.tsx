@@ -11,7 +11,7 @@ const colorClasses: Record<string, string> = {
   amber: 'bg-amber-50 text-amber-700 border-amber-200',
   red: 'bg-red-50 text-red-700 border-red-200',
   blue: 'bg-blue-50 text-blue-700 border-blue-200',
-  gray: 'bg-slate-100 text-slate-600 border-slate-200',
+  gray: 'bg-charcoal-100 text-charcoal-600 border-charcoal-200',
   stone: 'bg-stone-100 text-stone-700 border-stone-200',
   orange: 'bg-orange-50 text-orange-700 border-orange-200',
 };

@@ -320,17 +320,20 @@ export function AnalyticsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {insights.map((insight, idx) => (
-                <div key={idx} className="flex items-start gap-3 p-4 rounded-md border border-slate-200 bg-slate-50">
-                  <div className={`w-9 h-9 rounded-md ${insight.bg} flex items-center justify-center flex-shrink-0">
-                    <insight.icon className={`w-4 h-4 ${insight.color}`} />
+              {insights.map((insight, idx) => {
+                const InsightIcon = insight.icon;
+                return (
+                  <div key={idx} className="flex items-start gap-3 p-4 rounded-md border border-slate-200 bg-slate-50">
+                    <div className={`w-9 h-9 rounded-md ${insight.bg} flex items-center justify-center flex-shrink-0`}>
+                      <InsightIcon className={`w-4 h-4 ${insight.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">{insight.title}</p>
+                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">{insight.text}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">{insight.title}</p>
-                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">{insight.text}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
