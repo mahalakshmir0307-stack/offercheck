@@ -696,7 +696,7 @@ export const PRODUCT_STATUSES: {
   textColor: string;
   dotColor: string;
 }[] = [
-  { value: 'planned', label: 'Planned', color: 'gray', bgColor: 'bg-slate-100', textColor: 'text-slate-600', dotColor: 'bg-slate-400' },
+  { value: 'planned', label: 'Planned', color: 'gray', bgColor: 'bg-charcoal-100', textColor: 'text-charcoal-600', dotColor: 'bg-charcoal-400' },
   { value: 'in_production', label: 'In Production', color: 'amber', bgColor: 'bg-amber-50', textColor: 'text-amber-700', dotColor: 'bg-amber-500' },
   { value: 'completed', label: 'Completed', color: 'blue', bgColor: 'bg-blue-50', textColor: 'text-blue-700', dotColor: 'bg-blue-500' },
   { value: 'sold', label: 'Sold', color: 'green', bgColor: 'bg-emerald-50', textColor: 'text-emerald-700', dotColor: 'bg-emerald-500' },

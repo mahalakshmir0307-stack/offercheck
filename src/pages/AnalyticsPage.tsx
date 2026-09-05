@@ -180,12 +180,12 @@ export function AnalyticsPage() {
   }
 
   const kpis = [
-    { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Estimated Profit', value: formatCurrency(totalProfit), icon: Wallet, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Products Created', value: products.length, icon: Package, color: 'text-slate-700', bg: 'bg-slate-100' },
-    { label: 'Utilization Rate', value: `${utilizationRate}%`, icon: Percent, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'Total Volume', value: `${totalVolume.toFixed(0)} cm³`, icon: Layers, color: 'text-blue-700', bg: 'bg-blue-50' },
-    { label: 'Profit Margin', value: totalRevenue > 0 ? `${Math.round((totalProfit / totalRevenue) * 100)}%` : '0%', icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Estimated value of all products' },
+    { label: 'Estimated Profit', value: formatCurrency(totalProfit), icon: Wallet, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Revenue minus production cost' },
+    { label: 'Products Created', value: products.length, icon: Package, color: 'text-charcoal-700', bg: 'bg-charcoal-100', description: 'Total product count' },
+    { label: 'Utilization Rate', value: `${utilizationRate}%`, icon: Percent, color: 'text-amber-700', bg: 'bg-amber-50', description: 'Material with reuse potential' },
+    { label: 'Total Volume', value: `${totalVolume.toFixed(0)} cm³`, icon: Layers, color: 'text-blue-700', bg: 'bg-blue-50', description: 'Across all wood pieces' },
+    { label: 'Profit Margin', value: totalRevenue > 0 ? `${Math.round((totalProfit / totalRevenue) * 100)}%` : '0%', icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Profit as share of revenue' },
   ];
 
   return (
@@ -217,7 +217,7 @@ export function AnalyticsPage() {
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-72 flex items-center justify-center text-sm text-slate-400">No revenue data available yet</div>
+            <div className="h-72 flex items-center justify-center text-sm text-charcoal-400">No revenue data available yet</div>
           )}
         </CardContent>
       </Card>
@@ -238,7 +238,7 @@ export function AnalyticsPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No revenue data available</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No revenue data available</div>
             )}
           </CardContent>
         </Card>
@@ -258,7 +258,7 @@ export function AnalyticsPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No profit data available</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No profit data available</div>
             )}
           </CardContent>
         </Card>
@@ -282,7 +282,7 @@ export function AnalyticsPage() {
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No feasibility data available</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No feasibility data available</div>
             )}
           </CardContent>
         </Card>
@@ -303,7 +303,7 @@ export function AnalyticsPage() {
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-60 flex items-center justify-center text-sm text-slate-400">No inventory data available</div>
+              <div className="h-60 flex items-center justify-center text-sm text-charcoal-400">No inventory data available</div>
             )}
           </CardContent>
         </Card>
@@ -323,13 +323,13 @@ export function AnalyticsPage() {
               {insights.map((insight, idx) => {
                 const InsightIcon = insight.icon;
                 return (
-                  <div key={idx} className="flex items-start gap-3 p-4 rounded-md border border-slate-200 bg-slate-50">
+                  <div key={idx} className="flex items-start gap-3 p-4 rounded-md border border-charcoal-200 bg-charcoal-50">
                     <div className={`w-9 h-9 rounded-md ${insight.bg} flex items-center justify-center flex-shrink-0`}>
                       <InsightIcon className={`w-4 h-4 ${insight.color}`} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-slate-900">{insight.title}</p>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">{insight.text}</p>
+                      <p className="text-sm font-semibold text-charcoal-900">{insight.title}</p>
+                      <p className="text-xs text-charcoal-600 mt-1 leading-relaxed">{insight.text}</p>
                     </div>
                   </div>
                 );

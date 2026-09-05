@@ -74,15 +74,15 @@ export function AddWoodPage() {
     <div className="space-y-6 max-w-3xl">
       <button
         onClick={() => navigate('/dashboard')}
-        className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-700 transition-colors"
+        className="inline-flex items-center gap-2 text-sm text-charcoal-500 hover:text-charcoal-700 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Dashboard
       </button>
 
       <div>
-        <h1 className="text-xl font-bold text-slate-900">Add Leftover Material</h1>
-        <p className="text-sm text-slate-500 mt-0.5">Record details about a leftover wood piece from your sawmill.</p>
+        <h1 className="text-xl font-bold text-charcoal-900">Add Leftover Material</h1>
+        <p className="text-sm text-charcoal-500 mt-0.5">Record details about a leftover wood piece from your sawmill.</p>
       </div>
 
       <Card>
@@ -96,8 +96,8 @@ export function AddWoodPage() {
           {success ? (
             <div className="py-10 text-center">
               <CheckCircle2 className="w-12 h-12 text-emerald-600 mx-auto mb-3" />
-              <p className="text-sm font-medium text-slate-900">Material added successfully</p>
-              <p className="text-xs text-slate-500 mt-1">Redirecting to inventory...</p>
+              <p className="text-sm font-medium text-charcoal-900">Material added successfully</p>
+              <p className="text-xs text-charcoal-500 mt-1">Redirecting to inventory...</p>
             </div>
           ) : (
             <>
@@ -110,9 +110,9 @@ export function AddWoodPage() {
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Section: Material Type */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-1.5 border-b border-slate-100">
-                    <Package className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Material Type</span>
+                  <div className="flex items-center gap-2 pb-1.5 border-b border-charcoal-100">
+                    <Package className="w-3.5 h-3.5 text-charcoal-400" />
+                    <span className="text-xs font-semibold text-charcoal-500 uppercase tracking-wider">Material Type</span>
                   </div>
                   <Select
                     label="Wood Type"
@@ -129,9 +129,9 @@ export function AddWoodPage() {
 
                 {/* Section: Dimensions */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-1.5 border-b border-slate-100">
-                    <Ruler className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Dimensions (centimeters)</span>
+                  <div className="flex items-center gap-2 pb-1.5 border-b border-charcoal-100">
+                    <Ruler className="w-3.5 h-3.5 text-charcoal-400" />
+                    <span className="text-xs font-semibold text-charcoal-500 uppercase tracking-wider">Dimensions (centimeters)</span>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
                     <Input
@@ -172,9 +172,9 @@ export function AddWoodPage() {
 
                 {/* Section: Inventory */}
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-1.5 border-b border-slate-100">
-                    <FileText className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Inventory Details</span>
+                  <div className="flex items-center gap-2 pb-1.5 border-b border-charcoal-100">
+                    <FileText className="w-3.5 h-3.5 text-charcoal-400" />
+                    <span className="text-xs font-semibold text-charcoal-500 uppercase tracking-wider">Inventory Details</span>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <Input

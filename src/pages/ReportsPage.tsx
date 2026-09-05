@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import {
-  FileText, Loader2, Package, Recycle, Boxes, DollarSign,
+  FileText, Package, Recycle, Boxes, DollarSign,
   TrendingUp, TreePine, Download,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { PageHeader, LoadingState } from '@/components/ui/Shared';
 import {
   formatCurrency, formatDate, getStatusConfig, WOOD_STATUSES,
 } from '@/lib/constants';
@@ -43,8 +44,9 @@ export function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 text-amber-700 animate-spin" />
+      <div className="space-y-6">
+        <PageHeader title="Reports" description="Comprehensive summary of operations and material utilization." />
+        <LoadingState message="Loading report data..." />
       </div>
     );
   }
@@ -57,7 +59,7 @@ export function ReportsPage() {
   const utilizationRate = totalWood > 0 ? Math.round((reusableQty / totalWood) * 100) : 0;
 
   const summaryStats = [
-    { label: 'Total Wood Pieces', value: totalWood, icon: Package, color: 'text-slate-700', bg: 'bg-slate-100' },
+    { label: 'Total Wood Pieces', value: totalWood, icon: Package, color: 'text-charcoal-700', bg: 'bg-charcoal-100' },
     { label: 'Reusable Material', value: reusableQty, icon: Recycle, color: 'text-emerald-700', bg: 'bg-emerald-50' },
     { label: 'Products Created', value: products.length, icon: Boxes, color: 'text-blue-700', bg: 'bg-blue-50' },
     { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
@@ -101,16 +103,11 @@ export function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900">Reports</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Comprehensive summary of operations and material utilization.</p>
-        </div>
-        <Button onClick={handleExport} variant="outline" size="sm">
-          <Download className="w-4 h-4" />
-          Export Report
-        </Button>
-      </div>
+      <PageHeader
+        title="Reports"
+        description="Comprehensive summary of operations and material utilization."
+        action={<Button onClick={handleExport} variant="outline" size="sm"><Download className="w-4 h-4" />Export Report</Button>}
+      />
 
       {/* Summary stats */}
       <Card>
@@ -123,12 +120,12 @@ export function ReportsPage() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {summaryStats.map((stat) => (
-              <div key={stat.label} className="p-3 rounded-md border border-slate-200 bg-slate-50">
+              <div key={stat.label} className="p-3 rounded-md border border-charcoal-200 bg-charcoal-50">
                 <div className={`w-7 h-7 rounded-md ${stat.bg} flex items-center justify-center mb-2`}>
                   <stat.icon className={`w-3.5 h-3.5 ${stat.color}`} />
                 </div>
-                <p className="text-base font-bold text-slate-900 leading-tight">{stat.value}</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">{stat.label}</p>
+                <p className="text-base font-bold text-charcoal-900 leading-tight">{stat.value}</p>
+                <p className="text-[10px] text-charcoal-500 mt-0.5">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -144,20 +141,20 @@ export function ReportsPage() {
           {statusBreakdown.length > 0 ? (
             <div className="space-y-2">
               {statusBreakdown.map((s) => (
-                <div key={s.value} className="flex items-center justify-between p-3 rounded-md border border-slate-200">
+                <div key={s.value} className="flex items-center justify-between p-3 rounded-md border border-charcoal-200">
                   <div className="flex items-center gap-3">
                     <Badge color={s.color as 'green' | 'amber' | 'blue' | 'gray'}>
                       <span className={`w-1.5 h-1.5 rounded-full ${s.dotColor}`} />
                       {s.label}
                     </Badge>
-                    <span className="text-sm text-slate-600">{s.count} entries</span>
+                    <span className="text-sm text-charcoal-600">{s.count} entries</span>
                   </div>
-                  <span className="text-sm font-semibold text-slate-900 tabular-nums">{s.quantity} pcs</span>
+                  <span className="text-sm font-semibold text-charcoal-900 tabular-nums">{s.quantity} pcs</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500 text-center py-6">No material data available.</p>
+            <p className="text-sm text-charcoal-500 text-center py-6">No material data available.</p>
           )}
         </CardContent>
       </Card>
@@ -171,17 +168,17 @@ export function ReportsPage() {
           {products.length > 0 ? (
             <div className="space-y-2">
               {products.slice(0, 10).map((p) => (
-                <div key={p.id} className="flex items-center justify-between p-3 rounded-md border border-slate-200 hover:border-slate-300 transition-colors">
+                <div key={p.id} className="flex items-center justify-between p-3 rounded-md border border-charcoal-200 hover:border-charcoal-300 transition-colors">
                   <div>
-                    <p className="text-sm font-medium text-slate-900">{p.name}</p>
-                    <p className="text-xs text-slate-500">{p.product_type} · {p.quantity} pcs · {formatDate(p.created_at)}</p>
+                    <p className="text-sm font-medium text-charcoal-900">{p.name}</p>
+                    <p className="text-xs text-charcoal-500">{p.product_type} · {p.quantity} pcs · {formatDate(p.created_at)}</p>
                   </div>
                   <span className="text-sm font-semibold text-emerald-700">{formatCurrency(p.estimated_value)}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500 text-center py-6">No products created yet.</p>
+            <p className="text-sm text-charcoal-500 text-center py-6">No products created yet.</p>
           )}
         </CardContent>
       </Card>
@@ -195,17 +192,17 @@ export function ReportsPage() {
           {activity.length > 0 ? (
             <div className="space-y-2">
               {activity.map((log) => (
-                <div key={log.id} className="flex items-start gap-3 py-2 border-b border-slate-100 last:border-0">
+                <div key={log.id} className="flex items-start gap-3 py-2 border-b border-charcoal-100 last:border-0">
                   <div className="w-1.5 h-1.5 rounded-full bg-amber-600 mt-1.5 flex-shrink-0" />
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-slate-700">{log.description}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{formatDate(log.created_at)}</p>
+                    <p className="text-xs text-charcoal-700">{log.description}</p>
+                    <p className="text-[11px] text-charcoal-400 mt-0.5">{formatDate(log.created_at)}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-slate-500 text-center py-6">No activity recorded.</p>
+            <p className="text-sm text-charcoal-500 text-center py-6">No activity recorded.</p>
           )}
         </CardContent>
       </Card>

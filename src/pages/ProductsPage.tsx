@@ -85,14 +85,14 @@ export function ProductsPage() {
   const actualRevenue = products.filter(p => p.actual_revenue).reduce((s, p) => s + (p.actual_revenue || 0), 0);
 
   const kpis = [
-    { label: 'Total Products', value: products.length, icon: Package, color: 'text-slate-700', bg: 'bg-slate-100' },
-    { label: 'Planned', value: planned, icon: Wrench, color: 'text-slate-600', bg: 'bg-slate-100' },
-    { label: 'In Production', value: inProduction, icon: Loader2, color: 'text-amber-700', bg: 'bg-amber-50' },
-    { label: 'Completed', value: completed, icon: CheckCircle2, color: 'text-blue-700', bg: 'bg-blue-50' },
-    { label: 'Sold', value: sold, icon: Truck, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Est. Revenue', value: formatCurrency(totalValue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Est. Profit', value: formatCurrency(totalProfit), icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-    { label: 'Actual Revenue', value: formatCurrency(actualRevenue), icon: PackageCheck, color: 'text-emerald-700', bg: 'bg-emerald-50' },
+    { label: 'Total Products', value: products.length, icon: Package, color: 'text-charcoal-700', bg: 'bg-charcoal-100', description: 'All created products' },
+    { label: 'Planned', value: planned, icon: Wrench, color: 'text-charcoal-600', bg: 'bg-charcoal-100', description: 'Awaiting production' },
+    { label: 'In Production', value: inProduction, icon: Loader2, color: 'text-amber-700', bg: 'bg-amber-50', description: 'Currently being built' },
+    { label: 'Completed', value: completed, icon: CheckCircle2, color: 'text-blue-700', bg: 'bg-blue-50', description: 'Finished, unsold' },
+    { label: 'Sold', value: sold, icon: Truck, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Delivered to customer' },
+    { label: 'Est. Revenue', value: formatCurrency(totalValue), icon: DollarSign, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Sum of estimated values' },
+    { label: 'Est. Profit', value: formatCurrency(totalProfit), icon: TrendingUp, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Revenue minus cost' },
+    { label: 'Actual Revenue', value: formatCurrency(actualRevenue), icon: PackageCheck, color: 'text-emerald-700', bg: 'bg-emerald-50', description: 'Confirmed from sales' },
   ];
 
   return (
@@ -114,35 +114,35 @@ export function ProductsPage() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Product Name</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Wood Type</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Qty</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Est. Value</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Est. Cost</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Est. Profit</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Status</th>
-                    <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-5 py-3">Created</th>
+                  <tr className="border-b border-charcoal-200 bg-charcoal-50">
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Product Name</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Wood Type</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Qty</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Est. Value</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Est. Cost</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Est. Profit</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Status</th>
+                    <th className="text-left text-[11px] font-semibold text-charcoal-500 uppercase tracking-wider px-5 py-3">Created</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-charcoal-100">
                   {products.map(p => {
                     const sc = getProductStatusConfig(p.status);
                     const profit = p.estimated_profit || p.estimated_value - (p.estimated_cost || 0);
                     return (
-                      <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                        <td className="px-5 py-3"><span className="text-sm font-medium text-slate-900">{p.name}</span></td>
-                        <td className="px-5 py-3"><span className="text-sm text-slate-600">{p.wood_type || '—'}</span></td>
-                        <td className="px-5 py-3"><span className="text-sm text-slate-700 tabular-nums">{p.quantity}</span></td>
-                        <td className="px-5 py-3"><span className="text-sm font-semibold text-slate-900">{formatCurrency(p.estimated_value)}</span></td>
-                        <td className="px-5 py-3"><span className="text-sm text-slate-600">{formatCurrency(p.estimated_cost || 0)}</span></td>
+                      <tr key={p.id} className="hover:bg-charcoal-50 transition-colors">
+                        <td className="px-5 py-3"><span className="text-sm font-medium text-charcoal-900">{p.name}</span></td>
+                        <td className="px-5 py-3"><span className="text-sm text-charcoal-600">{p.wood_type || '—'}</span></td>
+                        <td className="px-5 py-3"><span className="text-sm text-charcoal-700 tabular-nums">{p.quantity}</span></td>
+                        <td className="px-5 py-3"><span className="text-sm font-semibold text-charcoal-900">{formatCurrency(p.estimated_value)}</span></td>
+                        <td className="px-5 py-3"><span className="text-sm text-charcoal-600">{formatCurrency(p.estimated_cost || 0)}</span></td>
                         <td className="px-5 py-3"><span className="text-sm font-semibold text-emerald-700">{formatCurrency(profit)}</span></td>
                         <td className="px-5 py-3">
                           <Badge color={sc.color as 'green' | 'amber' | 'blue' | 'gray'}>
                             <span className={`w-1.5 h-1.5 rounded-full ${sc.dotColor}`} />{sc.label}
                           </Badge>
                         </td>
-                        <td className="px-5 py-3"><span className="text-xs text-slate-500">{formatDate(p.created_at)}</span></td>
+                        <td className="px-5 py-3"><span className="text-xs text-charcoal-500">{formatDate(p.created_at)}</span></td>
                       </tr>
                     );
                   })}
@@ -161,17 +161,17 @@ export function ProductsPage() {
                   <CardContent className="pt-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{p.name}</p>
-                        <p className="text-xs text-slate-500">{p.wood_type || '—'} · {p.quantity} pcs</p>
+                        <p className="text-sm font-semibold text-charcoal-900">{p.name}</p>
+                        <p className="text-xs text-charcoal-500">{p.wood_type || '—'} · {p.quantity} pcs</p>
                       </div>
                       <Badge color={sc.color as 'green' | 'amber' | 'blue' | 'gray'}>
                         <span className={`w-1.5 h-1.5 rounded-full ${sc.dotColor}`} />{sc.label}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-xs mb-3">
-                      <div><p className="text-slate-400">Value</p><p className="font-semibold text-slate-900">{formatCurrency(p.estimated_value)}</p></div>
-                      <div><p className="text-slate-400">Cost</p><p className="text-slate-600">{formatCurrency(p.estimated_cost || 0)}</p></div>
-                      <div><p className="text-slate-400">Profit</p><p className="font-semibold text-emerald-700">{formatCurrency(profit)}</p></div>
+                      <div><p className="text-charcoal-400">Value</p><p className="font-semibold text-charcoal-900">{formatCurrency(p.estimated_value)}</p></div>
+                      <div><p className="text-charcoal-400">Cost</p><p className="text-charcoal-600">{formatCurrency(p.estimated_cost || 0)}</p></div>
+                      <div><p className="text-charcoal-400">Profit</p><p className="font-semibold text-emerald-700">{formatCurrency(profit)}</p></div>
                     </div>
                     <Select
                       value={p.status}
@@ -195,12 +195,12 @@ export function ProductsPage() {
                 {products.map(p => {
                   const sc = getProductStatusConfig(p.status);
                   return (
-                    <div key={p.id} className="flex items-center justify-between p-3 rounded-md border border-slate-200">
+                    <div key={p.id} className="flex items-center justify-between p-3 rounded-md border border-charcoal-200">
                       <div className="flex items-center gap-3">
                         <Badge color={sc.color as 'green' | 'amber' | 'blue' | 'gray'}>
                           <span className={`w-1.5 h-1.5 rounded-full ${sc.dotColor}`} />{sc.label}
                         </Badge>
-                        <span className="text-sm font-medium text-slate-900">{p.name}</span>
+                        <span className="text-sm font-medium text-charcoal-900">{p.name}</span>
                       </div>
                       <Select
                         value={p.status}
@@ -219,15 +219,15 @@ export function ProductsPage() {
 
           {/* Estimated vs Actual comparison */}
           {actualRevenue > 0 && (
-            <Card className="p-5 bg-slate-50 border-slate-200">
+            <Card className="p-5 bg-charcoal-50 border-charcoal-200">
               <div className="flex items-start gap-4">
                 <div className="w-9 h-9 rounded-md bg-emerald-700 flex items-center justify-center flex-shrink-0">
                   <PackageCheck className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">Estimated vs Actual Revenue</h3>
-                  <p className="text-sm text-slate-600 mt-1">
-                    Estimated value: <span className="font-semibold text-slate-900">{formatCurrency(totalValue)}</span>
+                  <h3 className="text-sm font-semibold text-charcoal-900">Estimated vs Actual Revenue</h3>
+                  <p className="text-sm text-charcoal-600 mt-1">
+                    Estimated value: <span className="font-semibold text-charcoal-900">{formatCurrency(totalValue)}</span>
                     {' '}· Actual revenue from sold products: <span className="font-semibold text-emerald-700">{formatCurrency(actualRevenue)}</span>
                   </p>
                 </div>

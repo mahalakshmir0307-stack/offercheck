@@ -14,7 +14,7 @@ import { Select } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ProductImage } from '@/components/ProductImage';
-import { PageHeader, LoadingState, EmptyState, ProgressBar } from '@/components/ui/Shared';
+import { PageHeader, LoadingState, ErrorState, EmptyState, ProgressBar } from '@/components/ui/Shared';
 import {
   PRODUCT_CATALOG, formatDimensions, formatCurrency,
   calculateWoodVolume, CATEGORY_LABELS, buildScoredSuggestion,
@@ -126,10 +126,7 @@ export function SuggestionsPage() {
     return (
       <div className="space-y-6">
         <PageHeader title="Product Recommendations" description="Feasibility analysis of products that can be manufactured from leftover wood." />
-        <div className="bg-white rounded-lg border border-red-200 p-6 text-center">
-          <p className="text-sm text-red-600 mb-4">{error}</p>
-          <Button variant="outline" size="sm" onClick={fetchWood}>Retry</Button>
-        </div>
+        <ErrorState message={error} onRetry={fetchWood} />
       </div>
     );
   }
@@ -172,20 +169,20 @@ export function SuggestionsPage() {
       {selectedWood && (
         <>
           {/* Wood piece info bar */}
-          <Card className="p-4 bg-slate-50 border-slate-200">
+          <Card className="p-4 bg-charcoal-50 border-charcoal-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-md bg-amber-700 flex items-center justify-center flex-shrink-0">
                   <TreePine className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{selectedWood.wood_type}</p>
-                  <p className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                  <p className="text-sm font-semibold text-charcoal-900">{selectedWood.wood_type}</p>
+                  <p className="text-xs text-charcoal-500 flex items-center gap-1.5 mt-0.5">
                     <Ruler className="w-3 h-3" />
                     {formatDimensions(selectedWood.length_cm, selectedWood.width_cm, selectedWood.thickness_cm)}
-                    <span className="text-slate-300">·</span>
+                    <span className="text-charcoal-300">·</span>
                     {selectedWood.quantity} pcs
-                    <span className="text-slate-300">·</span>
+                    <span className="text-charcoal-300">·</span>
                     {calculateWoodVolume(selectedWood.length_cm, selectedWood.width_cm, selectedWood.thickness_cm).toFixed(0)} cm³ volume
                   </p>
                 </div>
@@ -193,13 +190,13 @@ export function SuggestionsPage() {
               <div className="flex items-center gap-6">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-amber-700 tabular-nums">{matchedSuggestions.length}</p>
-                  <p className="text-[11px] text-slate-500">feasible products</p>
+                  <p className="text-[11px] text-charcoal-500">feasible products</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold text-emerald-700 tabular-nums">
                     {formatCurrency(matchedSuggestions.reduce((sum, s) => sum + s.estimated_value, 0))}
                   </p>
-                  <p className="text-[11px] text-slate-500">total est. value</p>
+                  <p className="text-[11px] text-charcoal-500">total est. value</p>
                 </div>
               </div>
             </div>
@@ -218,26 +215,26 @@ export function SuggestionsPage() {
                       <Badge color="amber"><Award className="w-3 h-3" />#1 Best Opportunity</Badge>
                       <Badge color="green"><CheckCircle2 className="w-3 h-3" />{bestMatch.score}% Feasible</Badge>
                     </div>
-                    <span className="text-xs text-slate-400">{CATEGORY_LABELS[bestMatch.category]}</span>
+                    <span className="text-xs text-charcoal-400">{CATEGORY_LABELS[bestMatch.category]}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-1">{bestMatch.name}</h3>
-                  <p className="text-sm text-slate-600 mb-3">{bestMatch.explanation}</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100">
+                  <h3 className="text-lg font-bold text-charcoal-900 mb-1">{bestMatch.name}</h3>
+                  <p className="text-sm text-charcoal-600 mb-3">{bestMatch.explanation}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-charcoal-100">
                     <div>
-                      <p className="text-[11px] text-slate-400">Est. Market Value</p>
-                      <p className="text-sm font-semibold text-slate-900">{formatCurrency(bestMatch.estimated_value)}</p>
+                      <p className="text-[11px] text-charcoal-400">Est. Market Value</p>
+                      <p className="text-sm font-semibold text-charcoal-900">{formatCurrency(bestMatch.estimated_value)}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-slate-400">Est. Production Cost</p>
-                      <p className="text-sm font-semibold text-slate-600">{formatCurrency(bestMatch.estimatedCost)}</p>
+                      <p className="text-[11px] text-charcoal-400">Est. Production Cost</p>
+                      <p className="text-sm font-semibold text-charcoal-600">{formatCurrency(bestMatch.estimatedCost)}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-slate-400">Est. Profit</p>
+                      <p className="text-[11px] text-charcoal-400">Est. Profit</p>
                       <p className="text-sm font-semibold text-emerald-700">{formatCurrency(bestMatch.estimated_profit)}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] text-slate-400">Profit Margin</p>
-                      <p className="text-sm font-semibold text-slate-900">{bestMatch.profitMargin}%</p>
+                      <p className="text-[11px] text-charcoal-400">Profit Margin</p>
+                      <p className="text-sm font-semibold text-charcoal-900">{bestMatch.profitMargin}%</p>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center gap-3">
@@ -250,7 +247,7 @@ export function SuggestionsPage() {
                       <PlusCircle className="w-4 h-4" />
                       Use This Opportunity
                     </Button>
-                    <span className="text-xs text-slate-400">{bestMatch.remainingMaterial}</span>
+                    <span className="text-xs text-charcoal-400">{bestMatch.remainingMaterial}</span>
                   </div>
                 </div>
               </div>
@@ -261,24 +258,24 @@ export function SuggestionsPage() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Lightbulb className="w-4 h-4 text-amber-700" />
-              <h2 className="text-sm font-semibold text-slate-900">All Feasibility Results</h2>
-              <span className="text-xs text-slate-400">({suggestions.length} products analyzed)</span>
+              <h2 className="text-sm font-semibold text-charcoal-900">All Feasibility Results</h2>
+              <span className="text-xs text-charcoal-400">({suggestions.length} products analyzed)</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {suggestions.map((s, idx) => {
                 const Icon = ICON_MAP[s.icon] || Boxes;
                 const rank = s.matched ? matchedSuggestions.indexOf(s) + 1 : null;
                 return (
-                  <Card key={s.name} className={s.matched ? 'border-slate-200' : 'opacity-60'}>
+                  <Card key={s.name} className={s.matched ? 'border-charcoal-200' : 'opacity-60'}>
                     <ProductImage images={s.images} alt={`${selectedWood?.wood_type || ''} ${s.name}`} className="h-36" />
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-center gap-2">
-                          <div className={`w-8 h-8 rounded-md flex items-center justify-center ${s.matched ? 'bg-amber-50' : 'bg-slate-100'}`}>
-                            <Icon className={`w-4 h-4 ${s.matched ? 'text-amber-700' : 'text-slate-400'}`} />
+                          <div className={`w-8 h-8 rounded-md flex items-center justify-center ${s.matched ? 'bg-amber-50' : 'bg-charcoal-100'}`}>
+                            <Icon className={`w-4 h-4 ${s.matched ? 'text-amber-700' : 'text-charcoal-400'}`} />
                           </div>
                           {rank && rank <= 3 && (
-                            <span className={`text-xs font-bold tabular-nums ${rank === 1 ? 'text-amber-700' : rank === 2 ? 'text-slate-500' : 'text-slate-400'}`}>
+                            <span className={`text-xs font-bold tabular-nums ${rank === 1 ? 'text-amber-700' : rank === 2 ? 'text-charcoal-500' : 'text-charcoal-400'}`}>
                               #{rank}
                             </span>
                           )}
@@ -289,19 +286,19 @@ export function SuggestionsPage() {
                           <Badge color="gray"><XCircle className="w-3 h-3" />Not Feasible</Badge>
                         )}
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-900 mb-0.5">{s.name}</h3>
-                      <p className="text-[11px] text-slate-500 mb-1">{CATEGORY_LABELS[s.category]}</p>
-                      <p className="text-xs text-slate-600 leading-relaxed mb-3">{s.explanation}</p>
+                      <h3 className="text-sm font-semibold text-charcoal-900 mb-0.5">{s.name}</h3>
+                      <p className="text-[11px] text-charcoal-500 mb-1">{CATEGORY_LABELS[s.category]}</p>
+                      <p className="text-xs text-charcoal-600 leading-relaxed mb-3">{s.explanation}</p>
 
                       {/* Feasibility score bar */}
                       <div className="mb-3">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[10px] text-slate-400">Feasibility Score</span>
-                          <span className="text-[10px] font-medium text-slate-600">{s.score}%</span>
+                          <span className="text-[10px] text-charcoal-400">Feasibility Score</span>
+                          <span className="text-[10px] font-medium text-charcoal-600">{s.score}%</span>
                         </div>
                         <ProgressBar
                           value={s.score}
-                          color={s.matched ? 'bg-emerald-500' : 'bg-slate-300'}
+                          color={s.matched ? 'bg-emerald-500' : 'bg-charcoal-300'}
                         />
                       </div>
 
@@ -309,33 +306,33 @@ export function SuggestionsPage() {
                       {s.matched && (
                         <div className="mb-3">
                           <div className="flex items-center justify-between mb-1">
-                            <span className="text-[10px] text-slate-400">Material Utilization</span>
-                            <span className="text-[10px] font-medium text-slate-600">{s.materialUtilization}%</span>
+                            <span className="text-[10px] text-charcoal-400">Material Utilization</span>
+                            <span className="text-[10px] font-medium text-charcoal-600">{s.materialUtilization}%</span>
                           </div>
                           <ProgressBar value={s.materialUtilization} color="bg-amber-500" />
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100">
+                      <div className="grid grid-cols-2 gap-2 pt-3 border-t border-charcoal-100">
                         <div>
-                          <p className="text-[10px] text-slate-400">Est. Value</p>
-                          <p className="text-xs font-semibold text-slate-900">{formatCurrency(s.estimated_value)}</p>
+                          <p className="text-[10px] text-charcoal-400">Est. Value</p>
+                          <p className="text-xs font-semibold text-charcoal-900">{formatCurrency(s.estimated_value)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] text-slate-400">Est. Cost</p>
-                          <p className="text-xs font-semibold text-slate-600">{formatCurrency(s.estimatedCost)}</p>
+                          <p className="text-[10px] text-charcoal-400">Est. Cost</p>
+                          <p className="text-xs font-semibold text-charcoal-600">{formatCurrency(s.estimatedCost)}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-slate-400">Est. Profit</p>
+                          <p className="text-[10px] text-charcoal-400">Est. Profit</p>
                           <p className="text-xs font-semibold text-emerald-700">{formatCurrency(s.estimated_profit)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[10px] text-slate-400">Margin</p>
-                          <p className="text-xs font-semibold text-slate-900">{s.profitMargin}%</p>
+                          <p className="text-[10px] text-charcoal-400">Margin</p>
+                          <p className="text-xs font-semibold text-charcoal-900">{s.profitMargin}%</p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-[10px] text-slate-400">Material Required</p>
-                          <p className="text-[11px] text-slate-600">{s.materialRequired}</p>
+                          <p className="text-[10px] text-charcoal-400">Material Required</p>
+                          <p className="text-[11px] text-charcoal-600">{s.materialRequired}</p>
                         </div>
                       </div>
 
@@ -361,18 +358,18 @@ export function SuggestionsPage() {
 
           {/* Summary */}
           {matchedSuggestions.length > 0 && (
-            <Card className="p-5 bg-slate-50 border-slate-200">
+            <Card className="p-5 bg-charcoal-50 border-charcoal-200">
               <div className="flex items-start gap-4">
                 <div className="w-9 h-9 rounded-md bg-amber-700 flex items-center justify-center flex-shrink-0">
                   <TrendingUp className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">Recommendation Summary</h3>
-                  <p className="text-sm text-slate-600 mt-1">
+                  <h3 className="text-sm font-semibold text-charcoal-900">Recommendation Summary</h3>
+                  <p className="text-sm text-charcoal-600 mt-1">
                     Based on the dimensions of this {selectedWood.wood_type} piece,
                     {' '}{matchedSuggestions.length} product{matchedSuggestions.length === 1 ? '' : 's'} can be manufactured
                     with a total estimated value of{' '}
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-charcoal-900">
                       {formatCurrency(matchedSuggestions.reduce((sum, s) => sum + s.estimated_value, 0))}
                     </span>
                     {' '}and estimated profit of{' '}
@@ -386,10 +383,10 @@ export function SuggestionsPage() {
           )}
 
           {matchedSuggestions.length === 0 && !loading && (
-            <Card className="p-8 text-center bg-slate-50 border-slate-200">
-              <Wrench className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-medium text-slate-900 mb-1">No feasible products for this material</p>
-              <p className="text-sm text-slate-500">The dimensions of this wood piece do not meet the minimum requirements for any catalog product. Try selecting a different piece.</p>
+            <Card className="p-8 text-center bg-charcoal-50 border-charcoal-200">
+              <Wrench className="w-10 h-10 text-charcoal-300 mx-auto mb-3" />
+              <p className="text-sm font-medium text-charcoal-900 mb-1">No feasible products for this material</p>
+              <p className="text-sm text-charcoal-500">The dimensions of this wood piece do not meet the minimum requirements for any catalog product. Try selecting a different piece.</p>
             </Card>
           )}
         </>

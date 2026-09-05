@@ -44,23 +44,23 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-amber-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-charcoal-100 via-white to-amber-50 px-4">
       <div className="w-full max-w-md">
         <Link to="/login" className="flex items-center gap-2.5 justify-center mb-8">
           <div className="w-11 h-11 rounded-xl bg-amber-700 flex items-center justify-center shadow-md">
             <TreePine className="w-6 h-6 text-white" />
           </div>
           <div className="text-left">
-            <span className="text-2xl font-bold text-stone-900 tracking-tight">WoodValue</span>
-            <p className="text-xs text-stone-500 -mt-0.5">Sawmill Reuse System</p>
+            <span className="text-2xl font-bold text-charcoal-900 tracking-tight">WoodValue</span>
+            <p className="text-xs text-charcoal-500 -mt-0.5">Sawmill Reuse System</p>
           </div>
         </Link>
 
-        <div className="bg-white rounded-2xl border border-stone-200 shadow-lg p-8">
-          <h1 className="text-2xl font-bold text-stone-900 mb-2">
+        <div className="bg-white rounded-2xl border border-charcoal-200 shadow-lg p-8">
+          <h1 className="text-2xl font-bold text-charcoal-900 mb-2">
             {isSignup ? 'Create Account' : 'Welcome Back'}
           </h1>
-          <p className="text-sm text-stone-600 mb-6">
+          <p className="text-sm text-charcoal-600 mb-6">
             {isSignup
               ? 'Sign up to start managing your leftover wood.'
               : 'Sign in to your sawmill account to continue.'}
@@ -97,7 +97,7 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-stone-600">
+          <p className="mt-6 text-center text-sm text-charcoal-600">
             {isSignup ? 'Already have an account? ' : "Don't have an account? "}
             <button
               onClick={() => { setIsSignup(!isSignup); setError(null); }}
@@ -108,7 +108,7 @@ export function LoginPage() {
           </p>
         </div>
 
-        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-stone-400">
+        <div className="mt-6 flex items-center justify-center gap-2 text-xs text-charcoal-400">
           <TreePine className="w-3.5 h-3.5" />
           WoodValue — Get more value from reusable leftover wood
         </div>

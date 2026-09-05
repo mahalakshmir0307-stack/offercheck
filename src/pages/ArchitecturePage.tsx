@@ -35,8 +35,8 @@ export function ArchitecturePage() {
     {
       name: 'Core Engine',
       icon: Cpu,
-      color: 'text-slate-700',
-      bg: 'bg-slate-100',
+      color: 'text-charcoal-700',
+      bg: 'bg-charcoal-100',
       tech: 'Recommendation + Analytics Engine',
       description: 'Rule-based feasibility engine that scores products 0-100 based on dimension matching. Calculates material utilization, estimated cost (28% of value), profit margin, and ranks recommendations.',
     },
@@ -78,14 +78,14 @@ export function ArchitecturePage() {
       />
 
       {/* Overview */}
-      <Card className="p-6 bg-slate-50 border-slate-200">
+      <Card className="p-6 bg-charcoal-50 border-charcoal-200">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 rounded-lg bg-amber-700 flex items-center justify-center flex-shrink-0">
             <TreePine className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-slate-900">WoodValue</h2>
-            <p className="text-sm text-slate-600 mt-1 max-w-3xl">
+            <h2 className="text-lg font-bold text-charcoal-900">WoodValue</h2>
+            <p className="text-sm text-charcoal-600 mt-1 max-w-3xl">
               A Material Intelligence and Business Decision Support Platform for sawmills and carpentry
               businesses. WoodValue helps convert leftover wood into valuable reusable products through
               inventory management, feasibility-based product recommendations, and comprehensive business analytics.
@@ -96,7 +96,7 @@ export function ArchitecturePage() {
 
       {/* Architecture layers */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-900 mb-3">Architecture Layers</h2>
+        <h2 className="text-sm font-semibold text-charcoal-900 mb-3">Architecture Layers</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {layers.map(layer => (
             <Card key={layer.name}>
@@ -107,10 +107,10 @@ export function ArchitecturePage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold text-slate-900">{layer.name}</h3>
+                      <h3 className="text-sm font-semibold text-charcoal-900">{layer.name}</h3>
                     </div>
                     <p className="text-xs font-medium text-amber-700 mb-1.5">{layer.tech}</p>
-                    <p className="text-xs text-slate-600 leading-relaxed">{layer.description}</p>
+                    <p className="text-xs text-charcoal-600 leading-relaxed">{layer.description}</p>
                   </div>
                 </div>
               </CardContent>
@@ -135,11 +135,11 @@ export function ArchitecturePage() {
                   <div className="w-8 h-8 rounded-md bg-amber-50 flex items-center justify-center">
                     <step.icon className="w-4 h-4 text-amber-700" />
                   </div>
-                  {i < workflow.length - 1 && <div className="w-px h-6 bg-slate-200 mt-1" />}
+                  {i < workflow.length - 1 && <div className="w-px h-6 bg-charcoal-200 mt-1" />}
                 </div>
                 <div className="pt-1">
-                  <p className="text-sm font-medium text-slate-900">{step.label}</p>
-                  <p className="text-xs text-slate-500 mt-0.5">{step.description}</p>
+                  <p className="text-sm font-medium text-charcoal-900">{step.label}</p>
+                  <p className="text-xs text-charcoal-500 mt-0.5">{step.description}</p>
                 </div>
               </div>
             ))}
@@ -149,15 +149,15 @@ export function ArchitecturePage() {
 
       {/* Business value */}
       <div>
-        <h2 className="text-sm font-semibold text-slate-900 mb-3">Business Value</h2>
+        <h2 className="text-sm font-semibold text-charcoal-900 mb-3">Business Value</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {businessMetrics.map(metric => (
             <Card key={metric.label} className="p-4">
-              <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center mb-2.5">
-                <metric.icon className="w-4 h-4 text-slate-700" />
+              <div className="w-8 h-8 rounded-md bg-charcoal-100 flex items-center justify-center mb-2.5">
+                <metric.icon className="w-4 h-4 text-charcoal-700" />
               </div>
-              <p className="text-sm font-semibold text-slate-900">{metric.label}</p>
-              <p className="text-xs text-slate-500 mt-1">{metric.description}</p>
+              <p className="text-sm font-semibold text-charcoal-900">{metric.label}</p>
+              <p className="text-xs text-charcoal-500 mt-1">{metric.description}</p>
             </Card>
           ))}
         </div>
@@ -169,9 +169,9 @@ export function ArchitecturePage() {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {techStack.map(item => (
-              <div key={item.category} className="p-3 rounded-md border border-slate-200 bg-slate-50">
-                <p className="text-[11px] text-slate-400">{item.category}</p>
-                <p className="text-sm font-medium text-slate-900 mt-0.5">{item.value}</p>
+              <div key={item.category} className="p-3 rounded-md border border-charcoal-200 bg-charcoal-50">
+                <p className="text-[11px] text-charcoal-400">{item.category}</p>
+                <p className="text-sm font-medium text-charcoal-900 mt-0.5">{item.value}</p>
               </div>
             ))}
           </div>
@@ -179,8 +179,8 @@ export function ArchitecturePage() {
       </Card>
 
       {/* Navigation */}
-      <Card className="p-5 bg-slate-50 border-slate-200">
-        <h3 className="text-sm font-semibold text-slate-900 mb-3">Platform Modules</h3>
+      <Card className="p-5 bg-charcoal-50 border-charcoal-200">
+        <h3 className="text-sm font-semibold text-charcoal-900 mb-3">Platform Modules</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           {[
             { icon: LayoutDashboard, label: 'Dashboard', to: '/dashboard' },
@@ -190,9 +190,9 @@ export function ArchitecturePage() {
             { icon: BarChart3, label: 'Analytics', to: '/analytics' },
             { icon: FileText, label: 'Reports', to: '/reports' },
           ].map(item => (
-            <a key={item.label} href={item.to} className="flex flex-col items-center gap-1.5 p-3 rounded-md border border-slate-200 bg-white hover:border-amber-300 hover:shadow-sm transition-all">
+            <a key={item.label} href={item.to} className="flex flex-col items-center gap-1.5 p-3 rounded-md border border-charcoal-200 bg-white hover:border-amber-300 hover:shadow-sm transition-all">
               <item.icon className="w-4 h-4 text-amber-700" />
-              <span className="text-xs font-medium text-slate-700">{item.label}</span>
+              <span className="text-xs font-medium text-charcoal-700">{item.label}</span>
             </a>
           ))}
         </div>

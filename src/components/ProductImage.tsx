@@ -77,9 +77,9 @@ export function ProductImage({ images, alt, className = '' }: ProductImageProps)
 
   if (loading) {
     return (
-      <div className={`relative bg-stone-100 animate-pulse ${className}`}>
+      <div className={`relative bg-charcoal-100 animate-pulse ${className}`}>
         <div className="absolute inset-0 flex items-center justify-center">
-          <ImageIcon className="w-8 h-8 text-stone-300" />
+          <ImageIcon className="w-8 h-8 text-charcoal-300" />
         </div>
       </div>
     );
@@ -87,17 +87,17 @@ export function ProductImage({ images, alt, className = '' }: ProductImageProps)
 
   if (failed) {
     return (
-      <div className={`relative bg-stone-50 border border-stone-200 ${className}`}>
+      <div className={`relative bg-charcoal-50 border border-charcoal-200 ${className}`}>
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-          <ImageIcon className="w-8 h-8 text-stone-300" />
-          <span className="text-xs text-stone-400">Image unavailable</span>
+          <ImageIcon className="w-8 h-8 text-charcoal-300" />
+          <span className="text-xs text-charcoal-400">Image unavailable</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`relative overflow-hidden bg-stone-50 ${className}`}>
+    <div className={`relative overflow-hidden bg-charcoal-50 ${className}`}>
       <img
         src={currentUrl}
         alt={alt}
